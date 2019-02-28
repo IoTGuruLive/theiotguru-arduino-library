@@ -18,5 +18,5 @@
   "version": "1.0.0",
   "examples": "examples/*/*.ino",
   "frameworks": "arduino",
-  "platforms": "*"
+  "platforms": "esp8266,esp32"
 }
