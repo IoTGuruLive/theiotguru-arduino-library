@@ -1,7 +1,7 @@
 {
-  "name": "TheIoTGuru",
-  "keywords": "cloud integrations",
-  "description": "Real time charts, device catalog, backup, data store, battery alert, offline alert, MQTT broker, HTTP REST support, Android and web client.",
+  "name": "The IoT Guru integration",
+  "keywords": "cloud, alerts, mqtt, rest, chart",
+  "description": "Real time charts, device catalog, data store with backup, battery and offline alert, MQTT broker, HTTP REST support, Android and web client.",
   "repository":
   {
     "type": "git",
