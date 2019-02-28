@@ -4,14 +4,21 @@
 
 #include <Arduino.h>
 
+#define IOT_GURU_BASE_URL              "http://api.iotguru.live/"
 #define IOT_GURU_CLIENT_VERSION        1.0.0
 
-class IoTGuru: public Print {
+class IoTGuru {
     private:
         String userShortId;
         String deviceShortId;
         String deviceKey;
+
+        volatile unsigned long lastChecked = 0;
+        volatile unsigned long checkDuration = 60000;
     public:
         IoTGuru(String userShortId, String deviceShortId, String deviceKey);
-        boolean handle();
+
+        IoTGuru* setCheckDuration(unsigned long checkDuration);
+
+        boolean check();
 };
