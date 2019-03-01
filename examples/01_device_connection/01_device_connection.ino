@@ -7,6 +7,15 @@
  * - user short identifier (you can find it on the Account page)
  * - the device short identifier (you can find it on the Device page)
  * - the device key (you can find it on the Device page)
+ *
+ * Tutorial: https://iotguru.live/tutorials/devices
+ *
+ * If your device is online and operating, the 'check()' function periodically sends
+ * check in messages to our cloud service where you can see the last check in timestamp
+ * on the list of your devices page 'Last firmware check' column.
+ *
+ * Also, you can set device alerts and we will send an email and Android push
+ * messages whether your device goes to down, still down or goes to up state.
  */
 
 #include <IoTGuru.h>
@@ -36,6 +45,11 @@ void setup() {
         delay(50);
         Serial.print(".");
     }
+  
+    /**
+     * Set check in duration, the default is 60000 milliseconds.
+     */
+    iotGuru.setCheckDuration(60000);
 }
 
 void loop() {
