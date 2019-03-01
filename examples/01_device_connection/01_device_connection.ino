@@ -17,7 +17,6 @@
  * Also, you can set device alerts and we will send an email and Android push
  * messages whether your device goes to down, still down or goes to up state.
  */
-
 #include <IoTGuru.h>
 
 #ifdef ESP8266
@@ -45,11 +44,16 @@ void setup() {
         delay(50);
         Serial.print(".");
     }
+    Serial.println("");
   
     /**
      * Set check in duration, the default is 60000 milliseconds.
      */
     iotGuru.setCheckDuration(60000);
+    /**
+     * Set the debug printer.
+     */
+    iotGuru.setDebugPrinter(&Serial);
 }
 
 void loop() {
