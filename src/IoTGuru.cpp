@@ -11,10 +11,12 @@ IoTGuru::IoTGuru(String userShortId, String deviceShortId, String deviceKey) {
 
 inline void IoTGuru::debugPrint(String function, int line, String msg) {
     if (this->debugPrinter) {
+        debugPrinter->print(millis());
+        debugPrinter->print(": {");
         debugPrinter->print(function);
-        debugPrinter->print(':');
+        debugPrinter->print(":");
         debugPrinter->print(line);
-        debugPrinter->print(" - ");
+        debugPrinter->print("} - ");
         debugPrinter->println(msg);
     }
 }
@@ -37,6 +39,9 @@ boolean IoTGuru::check() {
         return false;
     }
 
+    IOTGURU_DEBUG_PRINT("ENTRY");
+
+    IOTGURU_DEBUG_PRINT("Send request to the cloud");
     HTTPClient httpClient;
     httpClient.useHTTP10(true);
     httpClient.setTimeout(1000);
@@ -45,16 +50,16 @@ boolean IoTGuru::check() {
     int code = httpClient.GET();
     httpClient.end();
 
-    IOTGURU_DEBUG_PRINT("Check in request sent to the cloud (status code " + String(code) + ")");
+    IOTGURU_DEBUG_PRINT("Response received from the cloud (status code " + String(code) + ")");
 
+    IOTGURU_DEBUG_PRINT("EXIT");
     return code == 200;
 }
 
 boolean IoTGuru::sendFloatValue(String nodeShortId, String fieldName, float value) {
-    HTTPClient http;
-    http.useHTTP10(true);
-    http.setTimeout(1000);
+    IOTGURU_DEBUG_PRINT("ENTRY");
 
+    IOTGURU_DEBUG_PRINT("Send request to the cloud");
     HTTPClient httpClient;
     httpClient.useHTTP10(true);
     httpClient.setTimeout(1000);
@@ -63,7 +68,8 @@ boolean IoTGuru::sendFloatValue(String nodeShortId, String fieldName, float valu
     int code = httpClient.GET();
     httpClient.end();
 
-    IOTGURU_DEBUG_PRINT("Measurement create request sent to the cloud (status code " + String(code) + ")");
+    IOTGURU_DEBUG_PRINT("Response received from the cloud (status code " + String(code) + ")");
 
+    IOTGURU_DEBUG_PRINT("EXIT");
     return code == 200;
 }

@@ -10,8 +10,11 @@
 # Methods and Functions (KEYWORD2)
 #######################################
 
-IoTGuru                        KEYWORD2
-handle                         KEYWORD2
+setCheckDuration               KEYWORD2
+setDebugPrinter                KEYWORD2
+check                          KEYWORD2
+sendFloatValue                 KEYWORD2
+
 
 #######################################
 # Instances (KEYWORD2)
