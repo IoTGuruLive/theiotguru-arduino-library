@@ -1,18 +1,7 @@
 /**
  * IoTGuru.h - Arduino client of the https://iotguru.live cloud services.
  */
-
 #include "IoTGuru.h"
-
-#ifdef ESP8266
-  #include <ESP8266HTTPClient.h>
-#endif
-
-#ifdef ESP32
-  #include <HTTPClient.h>
-#endif
-
-#define IOTGURU_DEBUG_PRINT(msg) debugPrint(__PRETTY_FUNCTION__, __LINE__, msg)
 
 IoTGuru::IoTGuru(String userShortId, String deviceShortId, String deviceKey) {
     this->userShortId = userShortId;
@@ -48,15 +37,33 @@ boolean IoTGuru::check() {
         return false;
     }
 
+    HTTPClient httpClient;
+    httpClient.useHTTP10(true);
+    httpClient.setTimeout(1000);
+
+    httpClient.begin(String(IOT_GURU_BASE_URL) + "firmware/check/" + this->deviceKey);
+    int code = httpClient.GET();
+    httpClient.end();
+
+    IOTGURU_DEBUG_PRINT("Check in request sent to the cloud (status code " + String(code) + ")");
+
+    return code == 200;
+}
+
+boolean IoTGuru::sendFloatValue(String nodeShortId, String fieldName, float value) {
     HTTPClient http;
     http.useHTTP10(true);
     http.setTimeout(1000);
 
-    http.begin(String(IOT_GURU_BASE_URL) + "firmware/check/" + this->deviceKey);
-    int code = http.GET();
-    http.end();
+    HTTPClient httpClient;
+    httpClient.useHTTP10(true);
+    httpClient.setTimeout(1000);
 
-    IOTGURU_DEBUG_PRINT("Check in request sent to the cloud (status code " + String(code) + ")");
+    httpClient.begin(String(IOT_GURU_BASE_URL) + "measurement/create/" + nodeShortId + "/" + fieldName + "/" + String(value));
+    int code = httpClient.GET();
+    httpClient.end();
+
+    IOTGURU_DEBUG_PRINT("Measurement create request sent to the cloud (status code " + String(code) + ")");
 
     return code == 200;
 }
