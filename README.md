@@ -38,4 +38,5 @@ This is an Arduino library for ESP8266/ESP32 to provide integration with [The Io
 ### Send float value
 
 ```boolean sendHttpValue(String nodeShortId, String fieldName, float value);```
+
 ```boolean sendMqttValue(String nodeShortId, String fieldName, float value);```
