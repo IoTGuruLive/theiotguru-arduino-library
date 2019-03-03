@@ -23,10 +23,19 @@ This is an Arduino library for ESP8266/ESP32 to provide integration with [The Io
 
 ```IoTGuru* setDebugPrinter(HardwareSerial* debugPrinter);```
 
+### Set network client
+
+```IoTGuru* setNetworkClient(Client* client);```
+
 ### Check in
 
 ```boolean check();```
 
+### Loop (need to call in the loop)
+
+```boolean loop();```
+
 ### Send float value
 
-```boolean sendFloatValue(String nodeShortId, String fieldName, float value);```
+```boolean sendHttpValue(String nodeShortId, String fieldName, float value);```
+```boolean sendMqttValue(String nodeShortId, String fieldName, float value);```
