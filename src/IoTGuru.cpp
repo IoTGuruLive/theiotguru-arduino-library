@@ -9,17 +9,6 @@ IoTGuru::IoTGuru(String userShortId, String deviceShortId, String deviceKey) {
     this->deviceKey = deviceKey;
 }
 
-inline void IoTGuru::debugPrint(String function, int line, String msg) {
-    if (this->debugPrinter) {
-        debugPrinter->print(millis());
-        debugPrinter->print(": {");
-        debugPrinter->print(function);
-        debugPrinter->print(":");
-        debugPrinter->print(line);
-        debugPrinter->print("} - ");
-        debugPrinter->println(msg);
-    }
-}
 
 IoTGuru* IoTGuru::setCheckDuration(unsigned long checkDuration) {
     this->checkDuration = checkDuration;
@@ -27,8 +16,16 @@ IoTGuru* IoTGuru::setCheckDuration(unsigned long checkDuration) {
     return this;
 }
 
+
 IoTGuru* IoTGuru::setDebugPrinter(HardwareSerial* debugPrinter) {
     this->debugPrinter = debugPrinter;
+    return this;
+}
+
+IoTGuru* IoTGuru::setNetworkClient(Client* client) {
+    this->networkClient = client;
+    this->mqttClient = MqttClient(*client);
+
     return this;
 }
 
@@ -56,7 +53,21 @@ boolean IoTGuru::check() {
     return code == 200;
 }
 
-boolean IoTGuru::sendFloatValue(String nodeShortId, String fieldName, float value) {
+boolean IoTGuru::loop() {
+    this->mqttClient.loop();
+
+    if (mqttLastConnected == 0 || mqttLastConnected + mqttReconnectDuration < millis()) {
+        mqttLastConnected = millis();
+    } else {
+        return false;
+    }
+
+    this->mqttConnect();
+
+    return true;
+}
+
+boolean IoTGuru::sendHttpValue(String nodeShortId, String fieldName, float value) {
     IOTGURU_DEBUG_PRINT("ENTRY");
 
     IOTGURU_DEBUG_PRINT("Send request to the cloud");
@@ -72,4 +83,75 @@ boolean IoTGuru::sendFloatValue(String nodeShortId, String fieldName, float valu
 
     IOTGURU_DEBUG_PRINT("EXIT");
     return code == 200;
+}
+
+boolean IoTGuru::sendMqttValue(String nodeShortId, String fieldName, float value) {
+    IOTGURU_DEBUG_PRINT("ENTRY");
+
+    IOTGURU_DEBUG_PRINT("Send request to the cloud");
+    String topic = String("pub/" + this->userShortId + "/" + this->deviceShortId + "/" + nodeShortId + "/" + fieldName);
+    boolean result = this->mqttClient.publish(topic.c_str(), String(value).c_str());
+
+    IOTGURU_DEBUG_PRINT("Response received from the cloud (status " + String(result) + ")");
+
+    IOTGURU_DEBUG_PRINT("EXIT");
+    return result;
+}
+
+void IoTGuru::debugPrint(String function, int line, String msg) {
+    if (this->debugPrinter) {
+        debugPrinter->print(millis());
+        debugPrinter->print(": {");
+        debugPrinter->print(function);
+        debugPrinter->print(":");
+        debugPrinter->print(line);
+        debugPrinter->print("} - ");
+        debugPrinter->println(msg);
+    }
+}
+
+boolean IoTGuru::mqttConnect() {
+    if (mqttClient.isConnected()) {
+       return true;
+    }
+
+    IOTGURU_DEBUG_PRINT("ENTRY");
+    IOTGURU_DEBUG_PRINT("Send MQTT connection request to the cloud");
+
+    IOTGURU_DEBUG_PRINT("MQTT clientId: " + this->deviceShortId);
+    mqttClient.setServer(IOT_GURU_MQTT_HOST, 1883);
+    mqttClient.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->mqttCallback(topic, payload, length); });
+
+    if (mqttClient.connect(this->deviceShortId.c_str(), this->userShortId.c_str(), this->deviceKey.c_str())) {
+        String topic = String("sub/" + this->userShortId + "/" + this->deviceShortId + "/#");
+        mqttClient.subscribe(topic.c_str());
+
+        IOTGURU_DEBUG_PRINT("Connected and subscribed to the '" + topic + "' topic.");
+
+        IOTGURU_DEBUG_PRINT("EXIT");
+        return true;
+    }
+
+    IOTGURU_DEBUG_PRINT("Connection failed, rc=" + String(mqttClient.getState()));
+
+    IOTGURU_DEBUG_PRINT("EXIT");
+    return false;
+}
+
+boolean IoTGuru::mqttCallback(char* topicChars, byte* payloadBytes, unsigned int length) {
+    IOTGURU_DEBUG_PRINT("ENTRY");
+
+    char payloadChars[length + 1];
+    for (int i = 0; i < length; i++) {
+        payloadChars[i] = (char)payloadBytes[i];
+    }
+    payloadChars[length] = '\0';
+
+    String topic = String(topicChars);
+    String payload = String(payloadChars);
+
+    IOTGURU_DEBUG_PRINT("MQTT payload [" + payload + "] arrived on the [" + topic + "] topic");
+
+    IOTGURU_DEBUG_PRINT("EXIT");
+    return true;
 }
