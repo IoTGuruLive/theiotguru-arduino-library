@@ -4,6 +4,11 @@
 
 This is an Arduino library for ESP8266/ESP32 to provide integration with [The IoT Guru cloud](https://iotguru.live) services.
 
+- Support forum: [https://www.facebook.com/groups/theiotguru/](https://www.facebook.com/groups/theiotguru/)
+- Facebook page: [https://www.facebook.com/IoTGuruLive/](https://www.facebook.com/IoTGuruLive/)
+- Twitter page: [https://twitter.com/IoTGuruLive](https://twitter.com/IoTGuruLive)
+- Web page: [https://iotguru.live](https://iotguru.live)
+
 ## Examples
 
 - Device connection example: [01_device_connection.ino](https://github.com/IoTGuruLive/theiotguru-arduino-library/blob/master/examples/01_device_connection/01_device_connection.ino)
