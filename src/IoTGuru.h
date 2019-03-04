@@ -16,6 +16,13 @@
     #include <HTTPClient.h>
 #endif
 
+#if defined(ESP8266) || defined(ESP32)
+#include <functional>
+#define IOT_GURU_CALLBACK_SIGNATURE    std::function<void(const char*, const char*, const char*)> callback
+#else
+#define IOT_GURU_CALLBACK_SIGNATURE    void (*callback)(const char*, const char*, const char*)
+#endif
+
 #define IOTGURU_DEBUG_PRINT(msg) debugPrint(__PRETTY_FUNCTION__, __LINE__, msg)
 
 class IoTGuru {
@@ -36,6 +43,8 @@ class IoTGuru {
 
         void debugPrint(String function, int line, String msg);
 
+        IOT_GURU_CALLBACK_SIGNATURE;
+
         boolean mqttConnect();
         boolean mqttCallback(char* topic, byte* payload, unsigned int length);
     public:
@@ -50,4 +59,6 @@ class IoTGuru {
 
         boolean sendHttpValue(String nodeShortId, String fieldName, float value);
         boolean sendMqttValue(String nodeShortId, String fieldName, float value);
+
+        IoTGuru& setCallback(IOT_GURU_CALLBACK_SIGNATURE);
 };

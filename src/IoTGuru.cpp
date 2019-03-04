@@ -7,8 +7,16 @@ IoTGuru::IoTGuru(String userShortId, String deviceShortId, String deviceKey) {
     this->userShortId = userShortId;
     this->deviceShortId = deviceShortId;
     this->deviceKey = deviceKey;
+
+    this->callback = NULL;
 }
 
+
+IoTGuru& IoTGuru::setCallback(IOT_GURU_CALLBACK_SIGNATURE) {
+    this->callback = callback;
+
+    return *this;
+}
 
 IoTGuru* IoTGuru::setCheckDuration(unsigned long checkDuration) {
     this->checkDuration = checkDuration;
@@ -19,6 +27,7 @@ IoTGuru* IoTGuru::setCheckDuration(unsigned long checkDuration) {
 
 IoTGuru* IoTGuru::setDebugPrinter(HardwareSerial* debugPrinter) {
     this->debugPrinter = debugPrinter;
+
     return this;
 }
 
@@ -151,6 +160,35 @@ boolean IoTGuru::mqttCallback(char* topicChars, byte* payloadBytes, unsigned int
     String payload = String(payloadChars);
 
     IOTGURU_DEBUG_PRINT("MQTT payload [" + payload + "] arrived on the [" + topic + "] topic");
+
+    String nodeShortId;
+    String fieldName;
+
+    int start = 0;
+    int parts = 0;
+    for (int end = 0; end < topic.length(); end++) {
+        if (topic.charAt(end) == '/') {
+            if (parts == 3) {
+                nodeShortId = topic.substring(start, end);
+            }
+
+            start = end + 1;
+            parts++;
+        }
+    }
+    if (start < topic.length()) {
+        if (parts == 4) {
+            fieldName = topic.substring(start, topic.length());
+        }
+    }
+
+    if (nodeShortId.length() && fieldName.length()) {
+        IOTGURU_DEBUG_PRINT("ENTRY callback");
+        this->callback(nodeShortId.c_str(), fieldName.c_str(), payload.c_str());
+        IOTGURU_DEBUG_PRINT("EXIT callback");
+    } else {
+        IOTGURU_DEBUG_PRINT("Invalid MQTT topic structure");
+    }
 
     IOTGURU_DEBUG_PRINT("EXIT");
     return true;
