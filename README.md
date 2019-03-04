@@ -15,6 +15,10 @@ This is an Arduino library for ESP8266/ESP32 to provide integration with [The Io
 
 ## Methods
 
+### Set callback function
+
+```IoTGuru* setCallback( void (*callback)(const char*, const char*, const char*) );```
+
 ### Set check duration
 
 ```IoTGuru* setCheckDuration(unsigned long checkDuration);```
