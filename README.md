@@ -8,6 +8,7 @@ This is an Arduino library for ESP8266/ESP32 to provide integration with [The Io
 
 - Device connection example: [01_device_connection.ino](https://github.com/IoTGuruLive/theiotguru-arduino-library/blob/master/examples/01_device_connection/01_device_connection.ino)
 - Send measurement example: [02_send_measurement.ino](https://github.com/IoTGuruLive/theiotguru-arduino-library/blob/master/examples/02_send_measurement/02_send_measurement.ino)
+- Send and receive MQTT messages: [03_mqtt_send_and_callback.ino](https://github.com/IoTGuruLive/theiotguru-arduino-library/blob/master/examples/03_mqtt_send_and_callback/03_mqtt_send_and_callback.ino)
 
 ## Constructors
 
