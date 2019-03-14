@@ -62,7 +62,7 @@ void loop() {
     iotGuru.check();
 
     float measuredValue = 21.00f;
-    iotGuru.sendFloatValue(nodeKey, fieldName, measuredValue);
+    iotGuru.sendHttpValue(nodeKey, fieldName, measuredValue);
 
     delay(30000);
 }
