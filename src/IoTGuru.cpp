@@ -111,10 +111,96 @@ boolean IoTGuru::firmwareUpdate(const char* ota_version) {
             break;
         }
     }
-    IOTGURU_DEBUG_PRINT("EXIT");
-#else
-    IOTGURU_DEBUG_PRINT("OTA supported only on ESP8266...");
 #endif
+#if defined(ESP32)
+    String updateUrl = "/firmware/update/" + this->deviceKey + "/" + ota_version;
+    IOTGURU_DEBUG_PRINT("Send request to the cloud: " + updateUrl);
+
+    int contentLength = 0;
+    bool isValidContentType = false;
+    if (this->wiFiClient.connect(IOT_GURU_BASE_HOST, 80)) {
+        this->wiFiClient.print(String("GET ") + updateUrl + " HTTP/1.1\r\n" +
+                "Host: " + IOT_GURU_BASE_HOST + "\r\n" +
+                "Cache-Control: no-cache\r\n" +
+                "Connection: close\r\n\r\n");
+
+        unsigned long timeout = millis();
+        while (this->wiFiClient.available() == 0) {
+            delay(1);
+            if (millis() - timeout > 5000) {
+                IOTGURU_DEBUG_PRINT("Client Timeout!");
+                this->wiFiClient.stop();
+                return false;
+            }
+        }
+
+        while (this->wiFiClient.available()) {
+            String line = this->wiFiClient.readStringUntil('\n');
+            line.trim();
+
+            if (!line.length()) {
+                break;
+            }
+
+            if (line.startsWith("HTTP/1.1")) {
+                if (line.indexOf("200") < 0) {
+                    IOTGURU_DEBUG_PRINT("Got a non 200 status code from server (" + line + "). Exiting OTA Update.");
+                    break;
+                }
+            }
+
+            if (line.startsWith("Content-Length: ")) {
+                contentLength = atoi((getHeaderValue(line, "Content-Length: ")).c_str());
+                IOTGURU_DEBUG_PRINT("Got " + String(contentLength) + " bytes from server");
+            }
+
+            if (line.startsWith("Content-Type: ")) {
+                String contentType = getHeaderValue(line, "Content-Type: ");
+                IOTGURU_DEBUG_PRINT("Got " + contentType + " payload.");
+                if (contentType == "application/octet-stream; charset=UTF-8") {
+                    isValidContentType = true;
+                }
+            }
+        }
+    } else {
+        IOTGURU_DEBUG_PRINT("Connection to " + String(IOT_GURU_BASE_HOST) + " failed. Please check your setup");
+    }
+
+    if (!contentLength || !isValidContentType) {
+        this->wiFiClient.stop();
+        return false;
+    }
+
+    bool canBegin = Update.begin(contentLength);
+    if (!canBegin) {
+        IOTGURU_DEBUG_PRINT("There is no enough space to begin OTA... giving up.");
+        this->wiFiClient.stop();
+        return false;
+    }
+
+    Serial.println("Begin OTA update...");
+    size_t written = Update.writeStream(wiFiClient);
+    if (written == contentLength) {
+        IOTGURU_DEBUG_PRINT("Written: " + String(written) + " successfully.");
+    } else {
+        IOTGURU_DEBUG_PRINT("Written only: " + String(written) + "/" + String(contentLength) + "...");
+    }
+
+    if (Update.end()) {
+        IOTGURU_DEBUG_PRINT("OTA process ended...");
+        if (Update.isFinished()) {
+            IOTGURU_DEBUG_PRINT("Update successfully completed. Rebooting.");
+            ESP.restart();
+        } else {
+            IOTGURU_DEBUG_PRINT("Update not finished? Something went wrong! Uh-oh...");
+        }
+    } else {
+        IOTGURU_DEBUG_PRINT("Error Occurred. Error code is " + String(Update.getError()));
+    }
+#endif
+    IOTGURU_DEBUG_PRINT("EXIT");
+
+    return true;
 }
 
 boolean IoTGuru::loop() {
@@ -247,4 +333,8 @@ boolean IoTGuru::mqttCallback(char* topicChars, byte* payloadBytes, unsigned int
 
     IOTGURU_DEBUG_PRINT("EXIT");
     return true;
+}
+
+String IoTGuru::getHeaderValue(String header, String headerName) {
+    return header.substring(strlen(headerName.c_str()));
 }

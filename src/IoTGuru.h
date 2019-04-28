@@ -16,6 +16,7 @@
 #endif
 #ifdef ESP32
     #include <HTTPClient.h>
+    #include <Update.h>
 #endif
 
 #if defined(ESP8266) || defined(ESP32)
@@ -35,6 +36,10 @@ class IoTGuru {
 
         HardwareSerial* debugPrinter;
         Client* networkClient;
+
+#if defined(ESP8266) || defined(ESP32)
+        WiFiClient wiFiClient;
+#endif
         MqttClient mqttClient;
 
         volatile unsigned long lastChecked = 0;
@@ -50,6 +55,8 @@ class IoTGuru {
 
         boolean mqttConnect();
         boolean mqttCallback(char* topic, byte* payload, unsigned int length);
+
+        String getHeaderValue(String header, String headerName);
     public:
         IoTGuru(String userShortId, String deviceShortId, String deviceKey);
 
