@@ -41,6 +41,7 @@ This is an Arduino library for ESP8266/ESP32 to provide integration with [The Io
 ### Check in
 
 ```boolean check();```
+
 ```boolean check(const char* ota_version);```
 
 ### Firmware OTA update
