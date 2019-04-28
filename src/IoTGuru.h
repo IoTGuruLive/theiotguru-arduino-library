@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 #define IOT_GURU_BASE_URL              "http://api.iotguru.live/"
+#define IOT_GURU_BASE_HOST             "api.iotguru.live"
 #define IOT_GURU_MQTT_HOST             "mqtt.iotguru.live"
 #define IOT_GURU_CLIENT_VERSION        1.0.0
 
@@ -11,6 +12,7 @@
 
 #ifdef ESP8266
     #include <ESP8266HTTPClient.h>
+    #include <ESP8266httpUpdate.h>
 #endif
 #ifdef ESP32
     #include <HTTPClient.h>
@@ -36,8 +38,9 @@ class IoTGuru {
         MqttClient mqttClient;
 
         volatile unsigned long lastChecked = 0;
+        volatile unsigned long lastFirmwareChecked = 0;
         volatile unsigned long checkDuration = 60000;
- 
+
         volatile unsigned long mqttLastConnected = 0;
         volatile unsigned long mqttReconnectDuration = 5000;
 
@@ -55,6 +58,8 @@ class IoTGuru {
         IoTGuru* setNetworkClient(Client* client);
 
         boolean check();
+        boolean check(const char* ota_version);
+        boolean firmwareUpdate(const char* ota_version);
         boolean loop();
 
         boolean sendHttpValue(String nodeShortId, String fieldName, float value);

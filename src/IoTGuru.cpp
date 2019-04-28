@@ -62,6 +62,61 @@ boolean IoTGuru::check() {
     return code == 200;
 }
 
+boolean IoTGuru::check(const char* ota_version) {
+    if (lastChecked == 0 || lastChecked + checkDuration < millis()) {
+        lastChecked = millis();
+    } else {
+        return false;
+    }
+
+    IOTGURU_DEBUG_PRINT("ENTRY");
+
+    String url = String(IOT_GURU_BASE_URL) + "firmware/check/" + this->deviceKey + "/" + ota_version;
+    IOTGURU_DEBUG_PRINT("Send request to the cloud: " + url);
+    HTTPClient httpClient;
+    httpClient.useHTTP10(true);
+    httpClient.setTimeout(1000);
+
+    httpClient.begin(url);
+    int code = httpClient.GET();
+    httpClient.end();
+
+    IOTGURU_DEBUG_PRINT("Response received from the cloud (status code " + String(code) + ")");
+
+    IOTGURU_DEBUG_PRINT("EXIT");
+    if (code == 200) {
+        ESP.restart();
+    }
+}
+
+boolean IoTGuru::firmwareUpdate(const char* ota_version) {
+    IOTGURU_DEBUG_PRINT("ENTRY");
+#if defined(ESP8266)
+    String updateUrl = String(IOT_GURU_BASE_URL) + "firmware/update/" + this->deviceKey + "/" + ota_version;
+    IOTGURU_DEBUG_PRINT("Send request to the cloud: " + updateUrl);
+
+    t_httpUpdate_return ret = ESPhttpUpdate.update(String(IOT_GURU_BASE_HOST), 80, updateUrl, String(ota_version), false, "", false);
+    switch(ret) {
+        case HTTP_UPDATE_FAILED: {
+            IOTGURU_DEBUG_PRINT("HTTP update: failed(" + String(ESPhttpUpdate.getLastError()) + "): " + ESPhttpUpdate.getLastErrorString());
+            break;
+        }
+        case HTTP_UPDATE_NO_UPDATES: {
+            IOTGURU_DEBUG_PRINT("HTTP update: no updates");
+            break;
+        }
+        case HTTP_UPDATE_OK: {
+            IOTGURU_DEBUG_PRINT("HTTP update: OK");
+            ESP.restart();
+            break;
+        }
+    }
+    IOTGURU_DEBUG_PRINT("EXIT");
+#else
+    IOTGURU_DEBUG_PRINT("OTA supported only on ESP8266...");
+#endif
+}
+
 boolean IoTGuru::loop() {
     this->mqttClient.loop();
 
