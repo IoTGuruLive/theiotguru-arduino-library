@@ -14,6 +14,12 @@
  * If your device is online and operating, the 'check()' function periodically sends
  * check in messages to our cloud service where you can see the last check in timestamp
  * on the list of your devices page 'Last firmware check' column.
+ *
+ * You can upload your firmwares: https://iotguru.live/firmwares
+ *
+ * Set the "Device firmware version" field of your device and our library will
+ * update your device if the reported firmware version and the target firmware
+ * version is not equals.
  */
 #include <IoTGuru.h>
 
