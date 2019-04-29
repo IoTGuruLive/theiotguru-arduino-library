@@ -67,5 +67,7 @@ void setup() {
 }
 
 void loop() {
-    iotGuru.check(ota_version);
+    if (iotGuru.check(ota_version)) {
+        ESP.restart();
+    }
 }

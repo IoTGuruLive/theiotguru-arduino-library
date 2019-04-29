@@ -85,8 +85,10 @@ boolean IoTGuru::check(const char* ota_version) {
 
     IOTGURU_DEBUG_PRINT("EXIT");
     if (code == 200) {
-        ESP.restart();
+        return true;
     }
+
+    return false;
 }
 
 boolean IoTGuru::firmwareUpdate(const char* ota_version) {
