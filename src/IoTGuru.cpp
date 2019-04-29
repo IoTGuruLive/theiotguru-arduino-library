@@ -38,7 +38,7 @@ IoTGuru* IoTGuru::setNetworkClient(Client* client) {
     return this;
 }
 
-boolean IoTGuru::check() {
+bool IoTGuru::check() {
     if (lastChecked == 0 || lastChecked + checkDuration < millis()) {
         lastChecked = millis();
     } else {
@@ -62,7 +62,7 @@ boolean IoTGuru::check() {
     return code == 200;
 }
 
-boolean IoTGuru::check(const char* ota_version) {
+bool IoTGuru::check(const char* ota_version) {
     if (lastChecked == 0 || lastChecked + checkDuration < millis()) {
         lastChecked = millis();
     } else {
@@ -91,7 +91,7 @@ boolean IoTGuru::check(const char* ota_version) {
     return false;
 }
 
-boolean IoTGuru::firmwareUpdate(const char* ota_version) {
+bool IoTGuru::firmwareUpdate(const char* ota_version) {
     IOTGURU_DEBUG_PRINT("ENTRY");
 #if defined(ESP8266)
     String updateUrl = String(IOT_GURU_BASE_URL) + "firmware/update/" + this->deviceKey + "/" + ota_version;
@@ -205,7 +205,7 @@ boolean IoTGuru::firmwareUpdate(const char* ota_version) {
     return true;
 }
 
-boolean IoTGuru::loop() {
+bool IoTGuru::loop() {
     this->mqttClient.loop();
 
     if (mqttLastConnected == 0 || mqttLastConnected + mqttReconnectDuration < millis()) {
@@ -219,7 +219,7 @@ boolean IoTGuru::loop() {
     return true;
 }
 
-boolean IoTGuru::sendHttpValue(String nodeShortId, String fieldName, float value) {
+bool IoTGuru::sendHttpValue(String nodeShortId, String fieldName, float value) {
     IOTGURU_DEBUG_PRINT("ENTRY");
 
     IOTGURU_DEBUG_PRINT("Send request to the cloud");
@@ -237,12 +237,12 @@ boolean IoTGuru::sendHttpValue(String nodeShortId, String fieldName, float value
     return code == 200;
 }
 
-boolean IoTGuru::sendMqttValue(String nodeShortId, String fieldName, float value) {
+bool IoTGuru::sendMqttValue(String nodeShortId, String fieldName, float value) {
     IOTGURU_DEBUG_PRINT("ENTRY");
 
     IOTGURU_DEBUG_PRINT("Send request to the cloud");
     String topic = String("pub/" + this->userShortId + "/" + this->deviceShortId + "/" + nodeShortId + "/" + fieldName);
-    boolean result = this->mqttClient.publish(topic.c_str(), String(value).c_str());
+    bool result = this->mqttClient.publish(topic.c_str(), String(value).c_str());
 
     IOTGURU_DEBUG_PRINT("Response received from the cloud (status " + String(result) + ")");
 
@@ -262,7 +262,7 @@ void IoTGuru::debugPrint(String function, int line, String msg) {
     }
 }
 
-boolean IoTGuru::mqttConnect() {
+bool IoTGuru::mqttConnect() {
     if (mqttClient.isConnected()) {
        return true;
     }
@@ -290,7 +290,7 @@ boolean IoTGuru::mqttConnect() {
     return false;
 }
 
-boolean IoTGuru::mqttCallback(char* topicChars, byte* payloadBytes, unsigned int length) {
+bool IoTGuru::mqttCallback(char* topicChars, byte* payloadBytes, unsigned int length) {
     IOTGURU_DEBUG_PRINT("ENTRY");
 
     char payloadChars[length + 1];

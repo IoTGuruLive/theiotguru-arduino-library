@@ -53,8 +53,8 @@ class IoTGuru {
 
         IOT_GURU_CALLBACK_SIGNATURE;
 
-        boolean mqttConnect();
-        boolean mqttCallback(char* topic, byte* payload, unsigned int length);
+        bool mqttConnect();
+        bool mqttCallback(char* topic, byte* payload, unsigned int length);
 
         String getHeaderValue(String header, String headerName);
     public:
@@ -64,13 +64,13 @@ class IoTGuru {
         IoTGuru* setDebugPrinter(HardwareSerial* debugPrinter);
         IoTGuru* setNetworkClient(Client* client);
 
-        boolean check();
-        boolean check(const char* ota_version);
-        boolean firmwareUpdate(const char* ota_version);
-        boolean loop();
+        bool check();
+        bool check(const char* ota_version);
+        bool firmwareUpdate(const char* ota_version);
+        bool loop();
 
-        boolean sendHttpValue(String nodeShortId, String fieldName, float value);
-        boolean sendMqttValue(String nodeShortId, String fieldName, float value);
+        bool sendHttpValue(String nodeShortId, String fieldName, float value);
+        bool sendMqttValue(String nodeShortId, String fieldName, float value);
 
         IoTGuru& setCallback(IOT_GURU_CALLBACK_SIGNATURE);
 };
