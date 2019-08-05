@@ -26,8 +26,6 @@
 #define IOT_GURU_CALLBACK_SIGNATURE    void (*callback)(const char*, const char*, const char*)
 #endif
 
-#define IOTGURU_DEBUG_PRINT(msg) debugPrint(__PRETTY_FUNCTION__, __LINE__, msg)
-
 class IoTGuru {
     private:
         String userShortId;

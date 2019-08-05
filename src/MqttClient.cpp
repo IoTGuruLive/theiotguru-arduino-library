@@ -12,7 +12,7 @@ MqttClient::MqttClient() {
     this->networkClient = NULL;
 }
 
-MqttClient::MqttClient(Client& networkClient) {
+MqttClient::MqttClient(Client* networkClient) {
     this->state = MQTT_DISCONNECTED;
     setCallback(NULL);
     setNetworkClient(networkClient);
@@ -44,12 +44,12 @@ MqttClient& MqttClient::setCallback(MQTT_CALLBACK_SIGNATURE) {
     return *this;
 }
 
-MqttClient& MqttClient::setNetworkClient(Client& networkClient){
-    this->networkClient = &networkClient;
+MqttClient& MqttClient::setNetworkClient(Client* networkClient){
+    this->networkClient = networkClient;
     return *this;
 }
 
-MqttClient& MqttClient::setServer(const char * domain, uint16_t port) {
+MqttClient& MqttClient::setServer(const char* domain, uint16_t port) {
     this->domain = domain;
     this->port = port;
     return *this;

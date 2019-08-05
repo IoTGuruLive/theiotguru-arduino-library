@@ -33,7 +33,7 @@ IoTGuru* IoTGuru::setDebugPrinter(HardwareSerial* debugPrinter) {
 
 IoTGuru* IoTGuru::setNetworkClient(Client* client) {
     this->networkClient = client;
-    this->mqttClient = MqttClient(*client);
+    this->mqttClient = MqttClient(client);
 
     return this;
 }
@@ -45,9 +45,9 @@ bool IoTGuru::check() {
         return false;
     }
 
-    IOTGURU_DEBUG_PRINT("ENTRY");
+    debugPrint("check()", __LINE__, "ENTRY");
 
-    IOTGURU_DEBUG_PRINT("Send request to the cloud");
+    debugPrint("check()", __LINE__, "Send request to the cloud");
     HTTPClient httpClient;
     httpClient.useHTTP10(true);
     httpClient.setTimeout(1000);
@@ -56,9 +56,9 @@ bool IoTGuru::check() {
     int code = httpClient.GET();
     httpClient.end();
 
-    IOTGURU_DEBUG_PRINT("Response received from the cloud (status code " + String(code) + ")");
+    debugPrint("check()", __LINE__, "Response received from the cloud (status code " + String(code) + ")");
 
-    IOTGURU_DEBUG_PRINT("EXIT");
+    debugPrint("check()", __LINE__, "EXIT");
     return code == 200;
 }
 
@@ -69,10 +69,10 @@ bool IoTGuru::check(const char* ota_version) {
         return false;
     }
 
-    IOTGURU_DEBUG_PRINT("ENTRY");
+    debugPrint("check(ota_version)", __LINE__, "ENTRY");
 
     String url = String(IOT_GURU_BASE_URL) + "firmware/check/" + this->deviceKey + "/" + ota_version;
-    IOTGURU_DEBUG_PRINT("Send request to the cloud: " + url);
+    debugPrint("check(ota_version)", __LINE__, "Send request to the cloud: " + url);
     HTTPClient httpClient;
     httpClient.useHTTP10(true);
     httpClient.setTimeout(1000);
@@ -81,9 +81,9 @@ bool IoTGuru::check(const char* ota_version) {
     int code = httpClient.GET();
     httpClient.end();
 
-    IOTGURU_DEBUG_PRINT("Response received from the cloud (status code " + String(code) + ")");
+    debugPrint("check(ota_version)", __LINE__, "Response received from the cloud (status code " + String(code) + ")");
 
-    IOTGURU_DEBUG_PRINT("EXIT");
+    debugPrint("check(ota_version)", __LINE__, "EXIT");
     if (code == 200) {
         return true;
     }
@@ -92,23 +92,23 @@ bool IoTGuru::check(const char* ota_version) {
 }
 
 bool IoTGuru::firmwareUpdate(const char* ota_version) {
-    IOTGURU_DEBUG_PRINT("ENTRY");
+    debugPrint("firmwareUpdate(ota_version)", __LINE__, "ENTRY");
 #if defined(ESP8266)
     String updateUrl = String(IOT_GURU_BASE_URL) + "firmware/update/" + this->deviceKey + "/" + ota_version;
-    IOTGURU_DEBUG_PRINT("Send request to the cloud: " + updateUrl);
+    debugPrint("firmwareUpdate(ota_version)", __LINE__, "Send request to the cloud: " + updateUrl);
 
     t_httpUpdate_return ret = ESPhttpUpdate.update(String(IOT_GURU_BASE_HOST), 80, updateUrl, String(ota_version), false, "", false);
     switch(ret) {
         case HTTP_UPDATE_FAILED: {
-            IOTGURU_DEBUG_PRINT("HTTP update: failed(" + String(ESPhttpUpdate.getLastError()) + "): " + ESPhttpUpdate.getLastErrorString());
+            debugPrint("firmwareUpdate(ota_version)", __LINE__, "HTTP update: failed(" + String(ESPhttpUpdate.getLastError()) + "): " + ESPhttpUpdate.getLastErrorString());
             break;
         }
         case HTTP_UPDATE_NO_UPDATES: {
-            IOTGURU_DEBUG_PRINT("HTTP update: no updates");
+            debugPrint("firmwareUpdate(ota_version)", __LINE__, "HTTP update: no updates");
             break;
         }
         case HTTP_UPDATE_OK: {
-            IOTGURU_DEBUG_PRINT("HTTP update: OK");
+            debugPrint("firmwareUpdate(ota_version)", __LINE__, "HTTP update: OK");
             ESP.restart();
             break;
         }
@@ -116,7 +116,7 @@ bool IoTGuru::firmwareUpdate(const char* ota_version) {
 #endif
 #if defined(ESP32)
     String updateUrl = "/firmware/update/" + this->deviceKey + "/" + ota_version;
-    IOTGURU_DEBUG_PRINT("Send request to the cloud: " + updateUrl);
+    debugPrint("firmwareUpdate(ota_version)", __LINE__, "Send request to the cloud: " + updateUrl);
 
     int contentLength = 0;
     bool isValidContentType = false;
@@ -130,7 +130,7 @@ bool IoTGuru::firmwareUpdate(const char* ota_version) {
         while (this->wiFiClient.available() == 0) {
             delay(1);
             if (millis() - timeout > 5000) {
-                IOTGURU_DEBUG_PRINT("Client Timeout!");
+                debugPrint("firmwareUpdate(ota_version)", __LINE__, "Client Timeout!");
                 this->wiFiClient.stop();
                 return false;
             }
@@ -146,26 +146,26 @@ bool IoTGuru::firmwareUpdate(const char* ota_version) {
 
             if (line.startsWith("HTTP/1.1")) {
                 if (line.indexOf("200") < 0) {
-                    IOTGURU_DEBUG_PRINT("Got a non 200 status code from server (" + line + "). Exiting OTA Update.");
+                    debugPrint("firmwareUpdate(ota_version)", __LINE__, "Got a non 200 status code from server (" + line + "). Exiting OTA Update.");
                     break;
                 }
             }
 
             if (line.startsWith("Content-Length: ")) {
                 contentLength = atoi((getHeaderValue(line, "Content-Length: ")).c_str());
-                IOTGURU_DEBUG_PRINT("Got " + String(contentLength) + " bytes from server");
+                debugPrint("firmwareUpdate(ota_version)", __LINE__, "Got " + String(contentLength) + " bytes from server");
             }
 
             if (line.startsWith("Content-Type: ")) {
                 String contentType = getHeaderValue(line, "Content-Type: ");
-                IOTGURU_DEBUG_PRINT("Got " + contentType + " payload.");
+                debugPrint("firmwareUpdate(ota_version)", __LINE__, "Got " + contentType + " payload.");
                 if (contentType == "application/octet-stream; charset=UTF-8") {
                     isValidContentType = true;
                 }
             }
         }
     } else {
-        IOTGURU_DEBUG_PRINT("Connection to " + String(IOT_GURU_BASE_HOST) + " failed. Please check your setup");
+        debugPrint("firmwareUpdate(ota_version)", __LINE__, "Connection to " + String(IOT_GURU_BASE_HOST) + " failed. Please check your setup");
     }
 
     if (!contentLength || !isValidContentType) {
@@ -175,7 +175,7 @@ bool IoTGuru::firmwareUpdate(const char* ota_version) {
 
     bool canBegin = Update.begin(contentLength);
     if (!canBegin) {
-        IOTGURU_DEBUG_PRINT("There is no enough space to begin OTA... giving up.");
+        debugPrint("firmwareUpdate(ota_version)", __LINE__, "There is no enough space to begin OTA... giving up.");
         this->wiFiClient.stop();
         return false;
     }
@@ -183,24 +183,24 @@ bool IoTGuru::firmwareUpdate(const char* ota_version) {
     Serial.println("Begin OTA update...");
     size_t written = Update.writeStream(wiFiClient);
     if (written == contentLength) {
-        IOTGURU_DEBUG_PRINT("Written: " + String(written) + " successfully.");
+        debugPrint("firmwareUpdate(ota_version)", __LINE__, "Written: " + String(written) + " successfully.");
     } else {
-        IOTGURU_DEBUG_PRINT("Written only: " + String(written) + "/" + String(contentLength) + "...");
+        debugPrint("firmwareUpdate(ota_version)", __LINE__, "Written only: " + String(written) + "/" + String(contentLength) + "...");
     }
 
     if (Update.end()) {
-        IOTGURU_DEBUG_PRINT("OTA process ended...");
+        debugPrint("firmwareUpdate", __LINE__, "OTA process ended...");
         if (Update.isFinished()) {
-            IOTGURU_DEBUG_PRINT("Update successfully completed. Rebooting.");
+            debugPrint("firmwareUpdate(ota_version)", __LINE__, "Update successfully completed. Rebooting.");
             ESP.restart();
         } else {
-            IOTGURU_DEBUG_PRINT("Update not finished? Something went wrong! Uh-oh...");
+            debugPrint("firmwareUpdate(ota_version)", __LINE__, "Update not finished? Something went wrong! Uh-oh...");
         }
     } else {
-        IOTGURU_DEBUG_PRINT("Error Occurred. Error code is " + String(Update.getError()));
+        debugPrint("firmwareUpdate(ota_version)", __LINE__, "Error Occurred. Error code is " + String(Update.getError()));
     }
 #endif
-    IOTGURU_DEBUG_PRINT("EXIT");
+    debugPrint("firmwareUpdate(ota_version)", __LINE__, "EXIT");
 
     return true;
 }
@@ -220,9 +220,9 @@ bool IoTGuru::loop() {
 }
 
 bool IoTGuru::sendHttpValue(String nodeShortId, String fieldName, float value) {
-    IOTGURU_DEBUG_PRINT("ENTRY");
+    debugPrint("sendHttpValue(nodeShortId, fieldName, value)", __LINE__, "ENTRY");
 
-    IOTGURU_DEBUG_PRINT("Send request to the cloud");
+    debugPrint("sendHttpValue(nodeShortId, fieldName, value)", __LINE__, "Send request to the cloud");
     HTTPClient httpClient;
     httpClient.useHTTP10(true);
     httpClient.setTimeout(1000);
@@ -231,22 +231,22 @@ bool IoTGuru::sendHttpValue(String nodeShortId, String fieldName, float value) {
     int code = httpClient.GET();
     httpClient.end();
 
-    IOTGURU_DEBUG_PRINT("Response received from the cloud (status code " + String(code) + ")");
+    debugPrint("sendHttpValue(nodeShortId, fieldName, value)", __LINE__, "Response received from the cloud (status code " + String(code) + ")");
 
-    IOTGURU_DEBUG_PRINT("EXIT");
+    debugPrint("sendHttpValue(nodeShortId, fieldName, value)", __LINE__, "EXIT");
     return code == 200;
 }
 
 bool IoTGuru::sendMqttValue(String nodeShortId, String fieldName, float value) {
-    IOTGURU_DEBUG_PRINT("ENTRY");
+    debugPrint("sendMqttValue(nodeShortId, fieldName, value)", __LINE__, "ENTRY");
 
-    IOTGURU_DEBUG_PRINT("Send request to the cloud");
+    debugPrint("sendMqttValue(nodeShortId, fieldName, value)", __LINE__, "Send request to the cloud");
     String topic = String("pub/" + this->userShortId + "/" + this->deviceShortId + "/" + nodeShortId + "/" + fieldName);
     bool result = this->mqttClient.publish(topic.c_str(), String(value).c_str());
 
-    IOTGURU_DEBUG_PRINT("Response received from the cloud (status " + String(result) + ")");
+    debugPrint("sendMqttValue(nodeShortId, fieldName, value)", __LINE__, "Response received from the cloud (status " + String(result) + ")");
 
-    IOTGURU_DEBUG_PRINT("EXIT");
+    debugPrint("sendMqttValue(nodeShortId, fieldName, value)", __LINE__, "EXIT");
     return result;
 }
 
@@ -267,10 +267,10 @@ bool IoTGuru::mqttConnect() {
        return true;
     }
 
-    IOTGURU_DEBUG_PRINT("ENTRY");
-    IOTGURU_DEBUG_PRINT("Send MQTT connection request to the cloud");
+    debugPrint("mqttConnect()", __LINE__, "ENTRY");
+    debugPrint("mqttConnect()", __LINE__, "Send MQTT connection request to the cloud");
 
-    IOTGURU_DEBUG_PRINT("MQTT clientId: " + this->deviceShortId);
+    debugPrint("mqttConnect()", __LINE__, "MQTT clientId: " + this->deviceShortId);
     mqttClient.setServer(IOT_GURU_MQTT_HOST, 1883);
     mqttClient.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->mqttCallback(topic, payload, length); });
 
@@ -278,20 +278,20 @@ bool IoTGuru::mqttConnect() {
         String topic = String("sub/" + this->userShortId + "/" + this->deviceShortId + "/#");
         mqttClient.subscribe(topic.c_str());
 
-        IOTGURU_DEBUG_PRINT("Connected and subscribed to the '" + topic + "' topic.");
+        debugPrint("mqttConnect()", __LINE__, "Connected and subscribed to the '" + topic + "' topic.");
 
-        IOTGURU_DEBUG_PRINT("EXIT");
+        debugPrint("mqttConnect()", __LINE__, "EXIT");
         return true;
     }
 
-    IOTGURU_DEBUG_PRINT("Connection failed, rc=" + String(mqttClient.getState()));
+    debugPrint("mqttConnect()", __LINE__, "Connection failed, rc=" + String(mqttClient.getState()));
 
-    IOTGURU_DEBUG_PRINT("EXIT");
+    debugPrint("mqttConnect()", __LINE__, "EXIT");
     return false;
 }
 
 bool IoTGuru::mqttCallback(char* topicChars, byte* payloadBytes, unsigned int length) {
-    IOTGURU_DEBUG_PRINT("ENTRY");
+    debugPrint("mqttCallback()", __LINE__, "ENTRY");
 
     char payloadChars[length + 1];
     for (int i = 0; i < length; i++) {
@@ -302,7 +302,7 @@ bool IoTGuru::mqttCallback(char* topicChars, byte* payloadBytes, unsigned int le
     String topic = String(topicChars);
     String payload = String(payloadChars);
 
-    IOTGURU_DEBUG_PRINT("MQTT payload [" + payload + "] arrived on the [" + topic + "] topic");
+    debugPrint("mqttCallback()", __LINE__, "MQTT payload [" + payload + "] arrived on the [" + topic + "] topic");
 
     String nodeShortId;
     String fieldName;
@@ -326,14 +326,14 @@ bool IoTGuru::mqttCallback(char* topicChars, byte* payloadBytes, unsigned int le
     }
 
     if (nodeShortId.length() && fieldName.length()) {
-        IOTGURU_DEBUG_PRINT("ENTRY callback");
+        debugPrint("mqttCallback()", __LINE__, "ENTRY callback");
         this->callback(nodeShortId.c_str(), fieldName.c_str(), payload.c_str());
-        IOTGURU_DEBUG_PRINT("EXIT callback");
+        debugPrint("mqttCallback()", __LINE__, "EXIT callback");
     } else {
-        IOTGURU_DEBUG_PRINT("Invalid MQTT topic structure");
+        debugPrint("mqttCallback()", __LINE__, "Invalid MQTT topic structure");
     }
 
-    IOTGURU_DEBUG_PRINT("EXIT");
+    debugPrint("mqttCallback()", __LINE__, "EXIT");
     return true;
 }
 
