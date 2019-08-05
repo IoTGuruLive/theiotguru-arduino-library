@@ -75,14 +75,14 @@ private:
     size_t buildHeader(uint8_t header, uint8_t* buf, uint16_t length);
 public:
     MqttClient();
-    MqttClient(Client& networkClient);
+    MqttClient(Client* networkClient);
 
     boolean isConnected();
     int getState();
 
     MqttClient& setCallback(MQTT_CALLBACK_SIGNATURE);
-    MqttClient& setNetworkClient(Client& networkClient);
-    MqttClient& setServer(const char * domain, uint16_t port);
+    MqttClient& setNetworkClient(Client* networkClient);
+    MqttClient& setServer(const char* domain, uint16_t port);
 
     boolean connect(const char* id, const char* user, const char* pass);
     void disconnect();
