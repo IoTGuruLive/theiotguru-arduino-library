@@ -41,7 +41,7 @@ String deviceShortId  = "yyyyyyyyyyyyyyyyyyyyyy";
 String deviceKey      = "zzzzzzzzzzzzzzzzzzzzzz";
 IoTGuru iotGuru = IoTGuru(userShortId, deviceShortId, deviceKey);
 
-String nodeKey        = "wwwwwwwwwwwwwwwwwwwwww";
+String nodeShortId    = "wwwwwwwwwwwwwwwwwwwwww";
 String fieldName      = "ffffNNNN";
 
 void setup() {
@@ -76,7 +76,7 @@ void loop() {
 
     if (nextSendUptime < millis()) {
         nextSendUptime = millis() + 60000;
-        iotGuru.sendMqttValue(nodeKey, fieldName, millis()/1000.0f);
+        iotGuru.sendMqttValue(nodeShortId, fieldName, millis()/1000.0f);
     }
 }
 
