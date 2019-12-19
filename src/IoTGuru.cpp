@@ -219,21 +219,21 @@ bool IoTGuru::loop() {
     return true;
 }
 
-bool IoTGuru::sendHttpValue(String nodeShortId, String fieldName, float value) {
-    debugPrint("sendHttpValue(nodeShortId, fieldName, value)", __LINE__, "ENTRY");
+bool IoTGuru::sendHttpValue(String nodeKey, String fieldName, float value) {
+    debugPrint("sendHttpValue(nodeKey, fieldName, value)", __LINE__, "ENTRY");
 
-    debugPrint("sendHttpValue(nodeShortId, fieldName, value)", __LINE__, "Send request to the cloud");
+    debugPrint("sendHttpValue(nodeKey, fieldName, value)", __LINE__, "Send request to the cloud");
     HTTPClient httpClient;
     httpClient.useHTTP10(true);
     httpClient.setTimeout(1000);
 
-    httpClient.begin(String(IOT_GURU_BASE_URL) + "measurement/create/" + nodeShortId + "/" + fieldName + "/" + String(value));
+    httpClient.begin(String(IOT_GURU_BASE_URL) + "measurement/create/" + nodeKey + "/" + fieldName + "/" + String(value));
     int code = httpClient.GET();
     httpClient.end();
 
-    debugPrint("sendHttpValue(nodeShortId, fieldName, value)", __LINE__, "Response received from the cloud (status code " + String(code) + ")");
+    debugPrint("sendHttpValue(nodeKey, fieldName, value)", __LINE__, "Response received from the cloud (status code " + String(code) + ")");
 
-    debugPrint("sendHttpValue(nodeShortId, fieldName, value)", __LINE__, "EXIT");
+    debugPrint("sendHttpValue(nodeKey, fieldName, value)", __LINE__, "EXIT");
     return code == 200;
 }
 
