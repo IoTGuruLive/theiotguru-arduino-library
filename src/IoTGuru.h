@@ -67,7 +67,7 @@ class IoTGuru {
         bool firmwareUpdate(const char* ota_version);
         bool loop();
 
-        bool sendHttpValue(String nodeShortId, String fieldName, float value);
+        bool sendHttpValue(String nodeKey, String fieldName, float value);
         bool sendMqttValue(String nodeShortId, String fieldName, float value);
 
         IoTGuru& setCallback(IOT_GURU_CALLBACK_SIGNATURE);
