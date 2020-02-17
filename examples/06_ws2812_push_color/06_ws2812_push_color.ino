@@ -41,9 +41,9 @@ String fieldName      = "push";
 #define NUM_PIXELS 60 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 
-int red[NUM_PIXELS + 1];
-int green[NUM_PIXELS + 1];
-int blue[NUM_PIXELS + 1];
+int red[NUM_PIXELS + 2];
+int green[NUM_PIXELS + 2];
+int blue[NUM_PIXELS + 2];
 int pushed = 0;
 
 void setup()
