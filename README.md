@@ -15,6 +15,8 @@ This is an Arduino library for ESP8266/ESP32 to provide integration with [The Io
 - Send measurement example: [02_send_measurement.ino](https://github.com/IoTGuruLive/theiotguru-arduino-library/blob/master/examples/02_send_measurement/02_send_measurement.ino)
 - Send and receive MQTT messages: [03_mqtt_send_and_callback.ino](https://github.com/IoTGuruLive/theiotguru-arduino-library/blob/master/examples/03_mqtt_send_and_callback/03_mqtt_send_and_callback.ino)
 - OTA firmware update: [04_ota_firmware_update.ino](https://github.com/IoTGuruLive/theiotguru-arduino-library/blob/master/examples/04_ota_firmware_update/04_ota_firmware_update.ino)
+- Android MQTT relay: [05_mqtt_relay_android.ino](https://github.com/IoTGuruLive/theiotguru-arduino-library/blob/master/examples/05_mqtt_relay_android/05_mqtt_relay_android.ino)
+- WS2812 LED stript MQTT push color: [06_ws2812_push_color.ino](https://github.com/IoTGuruLive/theiotguru-arduino-library/blob/master/examples/06_ws2812_push_color/06_ws2812_push_color.ino)
 
 ## Constructors
 
