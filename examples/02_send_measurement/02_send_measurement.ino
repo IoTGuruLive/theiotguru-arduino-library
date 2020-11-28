@@ -58,11 +58,16 @@ void setup() {
     iotGuru.setDebugPrinter(&Serial);
 }
 
+unsigned long nextSend = 0;
 void loop() {
     iotGuru.check();
 
-    float measuredValue = 21.00f;
-    iotGuru.sendHttpValue(nodeKey, fieldName, measuredValue);
+    if (nextSend < millis()) {
+      nextSend += 30000;
+      
+      float measuredValue = 21.00f;
+      iotGuru.sendHttpValue(nodeKey, fieldName, measuredValue);
+    }
 
-    delay(30000);
+    delay(10);
 }
