@@ -52,7 +52,7 @@ bool IoTGuru::check() {
     httpClient.useHTTP10(true);
     httpClient.setTimeout(1000);
 
-    httpClient.begin(String(IOT_GURU_BASE_URL) + "firmware/check/" + this->deviceKey);
+    httpClient.begin(this->wiFiClient, String(IOT_GURU_BASE_URL) + "firmware/check/" + this->deviceKey);
     int code = httpClient.GET();
     httpClient.end();
 
@@ -77,7 +77,7 @@ bool IoTGuru::check(const char* ota_version) {
     httpClient.useHTTP10(true);
     httpClient.setTimeout(1000);
 
-    httpClient.begin(url);
+    httpClient.begin(this->wiFiClient, url);
     int code = httpClient.GET();
     httpClient.end();
 
@@ -97,7 +97,7 @@ bool IoTGuru::firmwareUpdate(const char* ota_version) {
     String updateUrl = String(IOT_GURU_BASE_URL) + "firmware/update/" + this->deviceKey + "/" + ota_version;
     debugPrint("firmwareUpdate(ota_version)", __LINE__, "Send request to the cloud: " + updateUrl);
 
-    t_httpUpdate_return ret = ESPhttpUpdate.update(String(IOT_GURU_BASE_HOST), 80, updateUrl, String(ota_version), false, "", false);
+    t_httpUpdate_return ret = ESPhttpUpdate.update(this->wiFiClient, String(IOT_GURU_BASE_HOST), 80, updateUrl, String(ota_version));
     switch(ret) {
         case HTTP_UPDATE_FAILED: {
             debugPrint("firmwareUpdate(ota_version)", __LINE__, "HTTP update: failed(" + String(ESPhttpUpdate.getLastError()) + "): " + ESPhttpUpdate.getLastErrorString());
@@ -227,7 +227,7 @@ bool IoTGuru::sendHttpValue(String nodeKey, String fieldName, float value) {
     httpClient.useHTTP10(true);
     httpClient.setTimeout(1000);
 
-    httpClient.begin(String(IOT_GURU_BASE_URL) + "measurement/create/" + nodeKey + "/" + fieldName + "/" + String(value));
+    httpClient.begin(this->wiFiClient, String(IOT_GURU_BASE_URL) + "measurement/create/" + nodeKey + "/" + fieldName + "/" + String(value));
     int code = httpClient.GET();
     httpClient.end();
 
