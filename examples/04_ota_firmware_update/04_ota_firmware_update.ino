@@ -18,8 +18,8 @@
  * You can upload your firmwares: https://iotguru.live/firmwares
  *
  * Set the "Device firmware version" field of your device and our library will
- * update your device if the reported firmware version and the target firmware
- * version is not equals.
+ * update your device if the reported firmware version (current_ota_version) and the
+ * target firmware version is not equals.
  */
 #include <IoTGuru.h>
 
@@ -30,15 +30,15 @@
   #include <WiFi.h>
 #endif
 
-const char* ssid        = "ssid";
-const char* password    = "password";
+const char* ssid                = "ssid";
+const char* password            = "password";
 
-const char* ota_version = "example-1.0.1";
+const char* current_ota_version = "example-1.0.1";
 
-String userShortId      = "xxxxxxxxxxxxxxxxxxxxxx";
-String deviceShortId    = "yyyyyyyyyyyyyyyyyyyyyy";
-String deviceKey        = "zzzzzzzzzzzzzzzzzzzzzz";
-IoTGuru iotGuru         = IoTGuru(userShortId, deviceShortId, deviceKey);
+String userShortId              = "xxxxxxxxxxxxxxxxxxxxxx";
+String deviceShortId            = "yyyyyyyyyyyyyyyyyyyyyy";
+String deviceKey                = "zzzzzzzzzzzzzzzzzzzzzz";
+IoTGuru iotGuru                 = IoTGuru(userShortId, deviceShortId, deviceKey);
 
 void setup() {
     Serial.begin(115200);
@@ -63,11 +63,11 @@ void setup() {
     /**
      * Check new firmware and try to update during the clean boot.
      */
-    iotGuru.firmwareUpdate(ota_version);
+    iotGuru.firmwareUpdate(current_ota_version);
 }
 
 void loop() {
-    if (iotGuru.check(ota_version)) {
+    if (iotGuru.check(current_ota_version)) {
         ESP.restart();
     }
 }
